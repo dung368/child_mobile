@@ -15,11 +15,12 @@ class _CameraViewPageState extends State<CameraViewPage> {
   @override
   void initState() {
     super.initState();
-    controller = VideoPlayerController.network(ApiService.camUrl(widget.camId))
-      ..initialize().then((_) {
-        setState(() {});
-        controller.play();
-      });
+    print("ok");
+    controller = VideoPlayerController.network(
+      ApiService.camUrl(widget.camId),
+      httpHeaders: ApiService.authHeaders(),
+    );
+    print(ApiService.camUrl(widget.camId));
   }
 
   @override

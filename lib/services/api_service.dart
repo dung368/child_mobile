@@ -45,7 +45,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiService {
   static const String baseUrl =
-      "https://childs.loca.lt"; // đổi thành server bạn
+      "https://grandppltej2.loca.lt"; // đổi thành server bạn
   static const String _tokenKey = "api_token";
 
   static String token = "";
@@ -68,7 +68,7 @@ class ApiService {
     await prefs.remove(_tokenKey);
   }
 
-  static Map<String, String> _authHeaders() {
+  static Map<String, String> authHeaders() {
     final headers = {'Content-Type': 'application/json'};
     if (token.isNotEmpty) {
       headers['Authorization'] = 'Bearer $token';
@@ -135,7 +135,7 @@ class ApiService {
   static Future<Map<String, dynamic>> getCurrent() async {
     final res = await http.get(
       Uri.parse('$baseUrl/current'),
-      headers: _authHeaders(),
+      headers: authHeaders(),
     );
     if (res.statusCode == 200) {
       return jsonDecode(res.body) as Map<String, dynamic>;
@@ -147,7 +147,7 @@ class ApiService {
   static Future<int> getNumCam() async {
     final res = await http.get(
       Uri.parse('$baseUrl/num_cam'),
-      headers: _authHeaders(),
+      headers: authHeaders(),
     );
     if (res.statusCode == 200) {
       final js = jsonDecode(res.body);
@@ -160,7 +160,7 @@ class ApiService {
   static Future<int> updateNumCam(int numberCam) async {
     final res = await http.post(
       Uri.parse('$baseUrl/num_cam_update'),
-      headers: _authHeaders(),
+      headers: authHeaders(),
       body: jsonEncode({"number_cam": numberCam}),
     );
     if (res.statusCode == 200) {
@@ -175,7 +175,7 @@ class ApiService {
   static Future<Map<String, dynamic>> getCamInfo(int id) async {
     final res = await http.get(
       Uri.parse('$baseUrl/cam$id'),
-      headers: _authHeaders(),
+      headers: authHeaders(),
     );
     if (res.statusCode == 200) {
       return jsonDecode(res.body) as Map<String, dynamic>;

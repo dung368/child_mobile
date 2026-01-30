@@ -44,7 +44,8 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiService {
-  static const String baseUrl = "http://192.168.4.199:8000"; // đổi thành server bạn
+  static const String baseUrl =
+      "https://childs.loca.lt"; // đổi thành server bạn
   static const String _tokenKey = "api_token";
 
   static String token = "";
@@ -90,7 +91,7 @@ class ApiService {
       "password": password,
       "full_name": fullName,
       "email": email,
-      "num_cams": numCams
+      "num_cams": numCams,
     };
     final res = await http.post(
       Uri.parse('$baseUrl/signup'),
@@ -172,7 +173,10 @@ class ApiService {
   // ---------- Camera info ----------
   /// Preferred: get camera metadata (uses auth)
   static Future<Map<String, dynamic>> getCamInfo(int id) async {
-    final res = await http.get(Uri.parse('$baseUrl/cam$id'), headers: _authHeaders());
+    final res = await http.get(
+      Uri.parse('$baseUrl/cam$id'),
+      headers: _authHeaders(),
+    );
     if (res.statusCode == 200) {
       return jsonDecode(res.body) as Map<String, dynamic>;
     }

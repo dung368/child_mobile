@@ -10,138 +10,206 @@
 // }
 
 // class _CameraViewPageState extends State<CameraViewPage> {
-//   late VideoPlayerController controller;
+//   late VideoPlayerController _controller;
+//   bool _initializing = true;
+//   String _error = "";
+
+//   static const testUrl =
+//       "https://5c3c535dd67e.ngrok-free.app/nai-cam0/index.m3u8";
 
 //   @override
 //   void initState() {
 //     super.initState();
-//     print("ok");
-//     controller = VideoPlayerController.networkUrl(
-//       Uri.parse("https://s3-streaming.baotintuc.vn/baotintuc/Video/2026_02_01/cbewjdcv_kxstd.qpdixcijr.kc_tEx_RBH_80273/")
-//       // httpHeaders: ApiService.authHeaders(),
-//     );
-//     print(ApiService.camUrl(widget.camId));
+//     _setupVideo();
+//   }
+
+//   Future<void> _setupVideo() async {
+//     final uri = Uri.parse(testUrl);
+
+//     // If you need auth headers, pass them here; example:
+//     // final headers = {'Authorization': 'Bearer ${ApiService.token}'};
+//     final headers = <String, String>{};
+
+//     try {
+//       _controller = VideoPlayerController.networkUrl(uri, httpHeaders: headers);
+
+//       // initialize returns a Future — wait for it
+//       await _controller.initialize();
+
+//       // optional: loop
+//       _controller.setLooping(true);
+
+//       // start playback
+//       await _controller.play();
+
+//       if (mounted) {
+//         setState(() {
+//           _initializing = false;
+//         });
+//       }
+//     } catch (e) {
+//       // capture error and show message in UI
+//       _error = e.toString();
+//       if (mounted) {
+//         setState(() {
+//           _initializing = false;
+//         });
+//       }
+//     }
 //   }
 
 //   @override
 //   void dispose() {
-//     controller.dispose();
+//     _controller.dispose();
 //     super.dispose();
+//   }
+
+//   Widget _buildBody() {
+//     if (_initializing) {
+//       return const Center(child: CircularProgressIndicator());
+//     }
+
+//     if (_error.isNotEmpty) {
+//       return Center(child: Text("Playback error: $_error"));
+//     }
+
+//     if (!_controller.value.isInitialized) {
+//       return const Center(child: Text("Player failed to initialize"));
+//     }
+
+//     return AspectRatio(
+//       aspectRatio: _controller.value.aspectRatio,
+//       child: VideoPlayer(_controller),
+//     );
 //   }
 
 //   @override
 //   Widget build(BuildContext context) {
 //     return Scaffold(
 //       appBar: AppBar(title: Text("Camera ${widget.camId}")),
-//       body: Center(
-//         child: controller.value.isInitialized
-//             ? AspectRatio(
-//                 aspectRatio: controller.value.aspectRatio,
-//                 child: VideoPlayer(controller),
-//               )
-//             : const CircularProgressIndicator(),
-//       ),
+//       body: _buildBody(),
+//       floatingActionButton: _controller.value.isInitialized
+//           ? FloatingActionButton(
+//               onPressed: () {
+//                 setState(() {
+//                   _controller.value.isPlaying ? _controller.pause() : _controller.play();
+//                 });
+//               },
+//               child: Icon(_controller.value.isPlaying ? Icons.pause : Icons.play_arrow),
+//             )
+//           : null,
 //     );
 //   }
 // }
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
-import '../services/api_service.dart';
 
 class CameraViewPage extends StatefulWidget {
-  final int camId;
-  const CameraViewPage({required this.camId, super.key});
+  final String cameraName;
+  final String streamUrl;
+
+  const CameraViewPage({
+    super.key,
+    required this.cameraName,
+    required this.streamUrl,
+  });
+
   @override
   State<CameraViewPage> createState() => _CameraViewPageState();
 }
 
 class _CameraViewPageState extends State<CameraViewPage> {
-  late VideoPlayerController _controller;
-  bool _initializing = true;
-  String _error = "";
-
-  static const testUrl =
-      "https://39f19e59e7c1.ngrok-free.app/nai-cam0/index.m3u8";
+  VideoPlayerController? _controller;
+  bool _loading = true;
+  bool _error = false;
 
   @override
   void initState() {
     super.initState();
-    _setupVideo();
+    _initPlayer();
   }
 
-  Future<void> _setupVideo() async {
-    final uri = Uri.parse(testUrl);
-
-    // If you need auth headers, pass them here; example:
-    // final headers = {'Authorization': 'Bearer ${ApiService.token}'};
-    final headers = <String, String>{};
+  Future<void> _initPlayer() async {
+    setState(() {
+      _loading = true;
+      _error = false;
+    });
 
     try {
-      _controller = VideoPlayerController.networkUrl(uri, httpHeaders: headers);
+      _controller?.dispose();
 
-      // initialize returns a Future — wait for it
-      await _controller.initialize();
+      _controller = VideoPlayerController.networkUrl(
+        Uri.parse(widget.streamUrl),
+        videoPlayerOptions: VideoPlayerOptions(
+          mixWithOthers: true,
+        ),
+      );
 
-      // optional: loop
-      _controller.setLooping(true);
+      await _controller!.initialize();
+      await _controller!.play();
 
-      // start playback
-      await _controller.play();
-
-      if (mounted) {
-        setState(() {
-          _initializing = false;
-        });
-      }
+      setState(() => _loading = false);
     } catch (e) {
-      // capture error and show message in UI
-      _error = e.toString();
-      if (mounted) {
-        setState(() {
-          _initializing = false;
-        });
-      }
+      debugPrint("Camera error: $e");
+      setState(() {
+        _loading = false;
+        _error = true;
+      });
     }
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    _controller?.dispose();
     super.dispose();
-  }
-
-  Widget _buildBody() {
-    if (_initializing) {
-      return const Center(child: CircularProgressIndicator());
-    }
-
-    if (_error.isNotEmpty) {
-      return Center(child: Text("Playback error: $_error"));
-    }
-
-    if (!_controller.value.isInitialized) {
-      return const Center(child: Text("Player failed to initialize"));
-    }
-
-    return AspectRatio(
-      aspectRatio: _controller.value.aspectRatio,
-      child: VideoPlayer(_controller),
-    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Camera ${widget.camId}")),
-      body: _buildBody(),
-      floatingActionButton: _controller.value.isInitialized
+      appBar: AppBar(
+        title: Text(widget.cameraName),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: _initPlayer, // 🔁 reconnect stream
+          )
+        ],
+      ),
+      body: Center(
+        child: _loading
+            ? const CircularProgressIndicator()
+            : _error
+                ? Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text("❌ Camera stream error"),
+                      const SizedBox(height: 12),
+                      ElevatedButton(
+                        onPressed: _initPlayer,
+                        child: const Text("Retry"),
+                      )
+                    ],
+                  )
+                : AspectRatio(
+                    aspectRatio: _controller!.value.aspectRatio,
+                    child: VideoPlayer(_controller!),
+                  ),
+      ),
+      floatingActionButton: !_loading && !_error
           ? FloatingActionButton(
               onPressed: () {
                 setState(() {
-                  _controller.value.isPlaying ? _controller.pause() : _controller.play();
+                  _controller!.value.isPlaying
+                      ? _controller!.pause()
+                      : _controller!.play();
                 });
               },
-              child: Icon(_controller.value.isPlaying ? Icons.pause : Icons.play_arrow),
+              child: Icon(
+                _controller!.value.isPlaying
+                    ? Icons.pause
+                    : Icons.play_arrow,
+              ),
             )
           : null,
     );

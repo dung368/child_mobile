@@ -649,15 +649,15 @@ class _HomePageState extends State<HomePage> {
                 return;
               }
 
-              if (!(url.startsWith("http://") || url.startsWith("https://")) ||
-                  !url.contains(".m3u8")) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text("URL must be an HLS .m3u8 http(s) URL"),
-                  ),
-                );
-                return;
-              }
+              // if (!(url.startsWith("http://") || url.startsWith("https://")) ||
+              //     !url.contains(".m3u8")) {
+              //   ScaffoldMessenger.of(context).showSnackBar(
+              //     const SnackBar(
+              //       content: Text("URL must be an HLS .m3u8 http(s) URL"),
+              //     ),
+              //   );
+              //   return;
+              // }
 
               // capture values before popping
               // unfocus first
@@ -667,10 +667,10 @@ class _HomePageState extends State<HomePage> {
               Navigator.of(dialogContext).pop();
 
               // dispose after frame
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                nameCtrl.dispose();
-                urlCtrl.dispose();
-              });
+              // WidgetsBinding.instance.addPostFrameCallback((_) {
+              //   nameCtrl.dispose();
+              //   urlCtrl.dispose();
+              // });
 
               // now do the async work (API call) with captured values
               setState(() => loading = true);
@@ -714,11 +714,12 @@ class _HomePageState extends State<HomePage> {
       (_) => false,
     );
   }
-  @override
-  void dispose() {
-    timer?.cancel();
-    super.dispose();
-  }
+
+  // @override
+  // void dispose() {
+  //   timer?.cancel();
+  //   super.dispose();
+  // }
   @override
   Widget build(BuildContext context) {
     return Scaffold(

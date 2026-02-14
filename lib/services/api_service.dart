@@ -215,7 +215,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiService {
-  static const String baseUrl = "https://grandppltej2.loca.lt";
+  static const String baseUrl = "https://2593-117-5-147-230.ngrok-free.app";
   static const String _tokenKey = "api_token";
 
   static String token = "";
@@ -303,7 +303,10 @@ class ApiService {
 
   // Current user
   static Future<Map<String, dynamic>> getCurrent() async {
-    final res = await http.get(Uri.parse('$baseUrl/current'), headers: authHeaders());
+    final res = await http.get(
+      Uri.parse('$baseUrl/current'),
+      headers: authHeaders(),
+    );
     if (res.statusCode == 200) {
       return jsonDecode(res.body) as Map<String, dynamic>;
     }
@@ -312,7 +315,10 @@ class ApiService {
 
   // Number of cameras (per-user)
   static Future<int> getNumCam() async {
-    final res = await http.get(Uri.parse('$baseUrl/num_cam'), headers: authHeaders());
+    final res = await http.get(
+      Uri.parse('$baseUrl/num_cam'),
+      headers: authHeaders(),
+    );
     if (res.statusCode == 200) {
       final js = jsonDecode(res.body);
       return js['num'] as int;
@@ -322,7 +328,10 @@ class ApiService {
 
   // Get camera info
   static Future<Map<String, dynamic>> getCamInfo(int id) async {
-    final res = await http.get(Uri.parse('$baseUrl/cam$id'), headers: authHeaders());
+    final res = await http.get(
+      Uri.parse('$baseUrl/cam$id'),
+      headers: authHeaders(),
+    );
     if (res.statusCode == 200) {
       return jsonDecode(res.body) as Map<String, dynamic>;
     }
@@ -337,7 +346,7 @@ class ApiService {
     final res = await http.post(
       Uri.parse('$baseUrl/cameras'),
       headers: authHeaders(),
-      body: jsonEncode({"name": name, "url": url}),
+      body: jsonEncode({"name": name, "url": "$baseUrl/overlay?url=$url"}),
     );
     if (res.statusCode == 201 || res.statusCode == 200) {
       return jsonDecode(res.body) as Map<String, dynamic>;
@@ -345,5 +354,5 @@ class ApiService {
     throw Exception('Failed to create camera: ${res.statusCode} ${res.body}');
   }
 
-  static String camUrl(int id) => "$baseUrl/cam$id";
+  // static String camUrl(int id) => "$baseUrl/cam/overlay/$id";
 }

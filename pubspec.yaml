@@ -39,6 +39,7 @@ dependencies:
   awesome_notifications: ^0.10.1
   http: ^1.6.0
   shared_preferences: ^2.5.4
+  mjpeg_stream: ^1.0.1
 
 dev_dependencies:
   flutter_test:

@@ -215,7 +215,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiService {
-  static const String baseUrl = "https://2593-117-5-147-230.ngrok-free.app";
+  static const String baseUrl = "http://192.168.2.221:8000";
   static const String _tokenKey = "api_token";
 
   static String token = "";

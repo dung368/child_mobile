@@ -196,9 +196,7 @@ class _CameraViewPageState extends State<CameraViewPage> {
                 aspectRatio: _controller!.value.aspectRatio,
                 child: MJPEGStreamScreen(
                   streamUrl: widget.streamUrl,
-                  width: 300.0,
-                  height: 200.0,
-                  fit: BoxFit.none,
+                  fit: BoxFit.cover,
                   showLiveIcon: false,
                 ),
                 //VideoPlayer(_controller!),

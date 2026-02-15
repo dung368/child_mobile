@@ -354,5 +354,17 @@ class ApiService {
     throw Exception('Failed to create camera: ${res.statusCode} ${res.body}');
   }
 
+  static Future<void> deleteCamera(String cameraId) async {
+    final res = await http.delete(
+      Uri.parse('$baseUrl/cameras/$cameraId'),
+      headers: authHeaders(),
+    );
+    if (res.statusCode != 204) {
+      // if server returns JSON error, include it
+      final body = res.body.isNotEmpty ? res.body : 'status ${res.statusCode}';
+      throw Exception('Failed to delete camera: $body');
+    }
+  }
+
   // static String camUrl(int id) => "$baseUrl/cam/overlay/$id";
 }

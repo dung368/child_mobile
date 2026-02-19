@@ -1,3 +1,4 @@
+// lib/services/api_service.dart
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -101,32 +102,7 @@ class ApiService {
     throw Exception('Failed to fetch current user: ${res.statusCode}');
   }
 
-  // Number of cameras (per-user)
-  static Future<int> getNumCam() async {
-    final res = await http.get(
-      Uri.parse('$baseUrl/num_cam'),
-      headers: authHeaders(),
-    );
-    if (res.statusCode == 200) {
-      final js = jsonDecode(res.body);
-      return js['num'] as int;
-    }
-    throw Exception('Failed to fetch num_cam: ${res.statusCode}');
-  }
-
-  // Get camera info
-  static Future<Map<String, dynamic>> getCamInfo(int id) async {
-    final res = await http.get(
-      Uri.parse('$baseUrl/cam$id'),
-      headers: authHeaders(),
-    );
-    if (res.statusCode == 200) {
-      return jsonDecode(res.body) as Map<String, dynamic>;
-    }
-    throw Exception('Failed to fetch cam info: ${res.statusCode}');
-  }
-
-  // Create camera
+  // Create camera (store the raw stream URL in DB)
   static Future<Map<String, dynamic>> createCamera({
     required String name,
     required String url,
@@ -134,7 +110,7 @@ class ApiService {
     final res = await http.post(
       Uri.parse('$baseUrl/cameras'),
       headers: authHeaders(),
-      body: jsonEncode({"name": name, "url": "$baseUrl/overlay?url=$url"}),
+      body: jsonEncode({"name": name, "url": url}),
     );
     if (res.statusCode == 201 || res.statusCode == 200) {
       return jsonDecode(res.body) as Map<String, dynamic>;
@@ -148,11 +124,56 @@ class ApiService {
       headers: authHeaders(),
     );
     if (res.statusCode != 204) {
-      // if server returns JSON error, include it
       final body = res.body.isNotEmpty ? res.body : 'status ${res.statusCode}';
       throw Exception('Failed to delete camera: $body');
     }
   }
 
-  // static String camUrl(int id) => "$baseUrl/cam/overlay/$id";
+  static Future<void> setDriverCam(String cameraId, bool isDriver) async {
+    final res = await http.post(
+      Uri.parse("$baseUrl/cameras/$cameraId/driver"),
+      headers: _authHeaders(),
+      body: jsonEncode({"is_driver": isDriver}),
+    );
+
+    if (res.statusCode != 200) {
+      throw Exception("Failed to update driver cam: ${res.body}");
+    }
+  }
+
+  /// register device token (FCM) to server
+  static Future<void> registerDeviceToken(String deviceToken) async {
+    final res = await http.post(
+      Uri.parse("$baseUrl/devices/register"),
+      headers: _authHeaders(),
+      body: jsonEncode({"token": deviceToken}),
+    );
+    if (res.statusCode != 200) {
+      throw Exception("Failed to register device token: ${res.statusCode} ${res.body}");
+    }
+  }
+
+  static Future<void> unregisterDeviceToken(String deviceToken) async {
+    final res = await http.post(
+      Uri.parse("$baseUrl/devices/unregister"),
+      headers: _authHeaders(),
+      body: jsonEncode({"token": deviceToken}),
+    );
+    if (res.statusCode != 200) {
+      throw Exception("Failed to unregister device token: ${res.statusCode} ${res.body}");
+    }
+  }
+
+  // fetch notifications (optional)
+  static Future<List<dynamic>> getNotifications() async {
+    final res = await http.get(
+      Uri.parse("$baseUrl/notifications"),
+      headers: _authHeaders(),
+    );
+    if (res.statusCode != 200) {
+      throw Exception("Failed to fetch notifications: ${res.statusCode} ${res.body}");
+    }
+    return jsonDecode(res.body) as List<dynamic>;
+  }
+  
 }

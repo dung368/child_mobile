@@ -1,3 +1,4 @@
+// lib/main.dart
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:workmanager/workmanager.dart';
@@ -7,47 +8,75 @@ import 'services/api_service.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 
+/// Top-level background handler required by firebase_messaging.
+/// It forwards to NotificationService's implementation (which takes care of init).
+@pragma('vm:entry-point')
+Future<void> firebaseBackgroundHandler(RemoteMessage message) =>
+    NotificationService.firebaseMessagingBackgroundHandler(message);
+
 void callbackDispatcher() {
   Workmanager().executeTask((task, inputData) async {
-    // Background task – try to call /current if token present.
-    // Note: background isolates may have limitations for some plugins.
+    // Background task – call /current if token present.
     try {
-      // ensure token is loaded in this isolate too (loadToken uses SharedPreferences)
       await ApiService.loadToken();
       if (ApiService.token.isNotEmpty) {
         try {
           final current = await ApiService.getCurrent();
-          // You can do something with 'current' here, like show a notification.
-          // For example: NotificationService.showNotification(...)
-          // But keep it minimal for background tasks.
-          // print('Background current: $current');
-        } catch (_) {
-          // ignore errors in background
-        }
+          // optional: react to 'current' in background
+        } catch (_) {}
       }
-    } catch (_) {
-      // ignore background initialization errors
-    }
+    } catch (_) {}
     return Future.value(true);
   });
 }
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-  );
-  // load any stored token before runApp
+
+  // Initialize Firebase
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  // Load stored API token (so we can register device token if already logged in)
   await ApiService.loadToken();
 
-  // initialize Notification service
-  NotificationService.initializeNotification();
-  FirebaseMessaging.onBackgroundMessage(
-    NotificationService.firebaseMessagingBackgroundHandler,
-  );
+  // Initialize local notification plugin + set up FCM handlers
+  await NotificationService.initializeNotification();
 
-  // initialize background worker
+  // Register top-level background message handler (must be top-level)
+  FirebaseMessaging.onBackgroundMessage(firebaseBackgroundHandler);
+
+  // Register Workmanager (optional background periodic checks)
   await Workmanager().initialize(callbackDispatcher);
+
+  // Acquire FCM token and send it to server if logged in
+  try {
+    final fcmToken = await FirebaseMessaging.instance.getToken();
+    if (fcmToken != null) {
+      debugPrint("FCM token: $fcmToken");
+      if (ApiService.token.isNotEmpty) {
+        try {
+          await ApiService.registerDeviceToken(fcmToken);
+          debugPrint("Registered FCM token to server");
+        } catch (e) {
+          debugPrint("Failed to register device token on server: $e");
+        }
+      }
+      // listen for future token refreshes and re-register when they happen
+      FirebaseMessaging.instance.onTokenRefresh.listen((newToken) async {
+        debugPrint("FCM token refreshed: $newToken");
+        try {
+          if (ApiService.token.isNotEmpty) {
+            await ApiService.registerDeviceToken(newToken);
+            debugPrint("Re-registered refreshed token on server");
+          }
+        } catch (e) {
+          debugPrint("Failed to register refreshed token: $e");
+        }
+      });
+    }
+  } catch (e) {
+    debugPrint("Error getting FCM token: $e");
+  }
 
   runApp(const MyApp());
 }

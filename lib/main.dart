@@ -1,39 +1,11 @@
-// import 'package:flutter/material.dart';
-// import 'package:workmanager/workmanager.dart';
-// import 'services/notification_service.dart';
-// import 'pages/login_page.dart';
-
-// void callbackDispatcher() {
-//   Workmanager().executeTask((task, inputData) async {
-//     // Background task – sẽ gọi API /current nếu bạn cần
-//     return Future.value(true);
-//   });
-// }
-
-// void main() async {
-//   WidgetsFlutterBinding.ensureInitialized();
-//   await NotificationService.init();
-//   await Workmanager().initialize(callbackDispatcher);
-//   runApp(const MyApp());
-// }
-
-// class MyApp extends StatelessWidget {
-//   const MyApp({super.key});
-//   @override
-//   Widget build(BuildContext context) {
-//     return MaterialApp(
-//       title: 'Child In Car Monitor',
-//       theme: ThemeData(primarySwatch: Colors.blue),
-//       home: const LoginPage(),
-//     );
-//   }
-// }
-// lib/main.dart
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:workmanager/workmanager.dart';
 import 'services/notification_service.dart';
 import 'pages/login_page.dart';
 import 'services/api_service.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
 void callbackDispatcher() {
   Workmanager().executeTask((task, inputData) async {
@@ -62,12 +34,17 @@ void callbackDispatcher() {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  // initialize notification service (your existing implementation)
-  await NotificationService.init();
-
+  await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+  );
   // load any stored token before runApp
   await ApiService.loadToken();
+
+  // initialize Notification service
+  NotificationService.initializeNotification();
+  FirebaseMessaging.onBackgroundMessage(
+    NotificationService.firebaseMessagingBackgroundHandler,
+  );
 
   // initialize background worker
   await Workmanager().initialize(callbackDispatcher);

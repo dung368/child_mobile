@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "820214305360",
+    "project_id": "childmobile-ee6f3",
+    "storage_bucket": "childmobile-ee6f3.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:820214305360:android:5013fc7f9419679f8e7755",
+        "android_client_info": {
+          "package_name": "com.example.childmobile"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBBPXfTPHdTLH00Af87lbk9RD4FeOXKTFQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

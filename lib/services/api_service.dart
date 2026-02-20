@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiService {
-  static const String baseUrl = "http://192.168.1.52:8000";
+  static const String baseUrl = "http://192.168.2.221:8000";
   static const String _tokenKey = "api_token";
 
   static String token = "";
@@ -149,7 +149,9 @@ class ApiService {
       body: jsonEncode({"token": deviceToken}),
     );
     if (res.statusCode != 200) {
-      throw Exception("Failed to register device token: ${res.statusCode} ${res.body}");
+      throw Exception(
+        "Failed to register device token: ${res.statusCode} ${res.body}",
+      );
     }
   }
 
@@ -160,7 +162,9 @@ class ApiService {
       body: jsonEncode({"token": deviceToken}),
     );
     if (res.statusCode != 200) {
-      throw Exception("Failed to unregister device token: ${res.statusCode} ${res.body}");
+      throw Exception(
+        "Failed to unregister device token: ${res.statusCode} ${res.body}",
+      );
     }
   }
 
@@ -171,9 +175,10 @@ class ApiService {
       headers: _authHeaders(),
     );
     if (res.statusCode != 200) {
-      throw Exception("Failed to fetch notifications: ${res.statusCode} ${res.body}");
+      throw Exception(
+        "Failed to fetch notifications: ${res.statusCode} ${res.body}",
+      );
     }
     return jsonDecode(res.body) as List<dynamic>;
   }
-  
 }

@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
-import '../services/notification_service.dart';
 import 'camera_list_page.dart';
 import 'login_page.dart';
 
@@ -108,29 +107,10 @@ class _HomePageState extends State<HomePage> {
                 );
                 return;
               }
-
-              // if (!(url.startsWith("http://") || url.startsWith("https://")) ||
-              //     !url.contains(".m3u8")) {
-              //   ScaffoldMessenger.of(context).showSnackBar(
-              //     const SnackBar(
-              //       content: Text("URL must be an HLS .m3u8 http(s) URL"),
-              //     ),
-              //   );
-              //   return;
-              // }
-
-              // capture values before popping
-              // unfocus first
               FocusScope.of(dialogContext).unfocus();
 
               // close dialog
               Navigator.of(dialogContext).pop();
-
-              // dispose after frame
-              // WidgetsBinding.instance.addPostFrameCallback((_) {
-              //   nameCtrl.dispose();
-              //   urlCtrl.dispose();
-              // });
 
               // now do the async work (API call) with captured values
               setState(() => loading = true);

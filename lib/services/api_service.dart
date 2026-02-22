@@ -40,17 +40,11 @@ class ApiService {
   // Signup
   static Future<bool> signup({
     required String username,
-    required String password,
-    String? fullName,
-    String? email,
-    int numCams = 1,
+    required String password
   }) async {
     final body = {
       "username": username,
-      "password": password,
-      "full_name": fullName,
-      "email": email,
-      "num_cams": numCams,
+      "password": password
     };
     final res = await http.post(
       Uri.parse('$baseUrl/signup'),

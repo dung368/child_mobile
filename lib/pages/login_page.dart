@@ -65,8 +65,6 @@ class _LoginPageState extends State<LoginPage> {
   void showSignupDialog() {
     final signupUserCtrl = TextEditingController();
     final signupPassCtrl = TextEditingController();
-    final camCtrl = TextEditingController(text: "1");
-
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
@@ -82,12 +80,7 @@ class _LoginPageState extends State<LoginPage> {
               controller: signupPassCtrl,
               decoration: const InputDecoration(labelText: "Password"),
               obscureText: true,
-            ),
-            TextField(
-              controller: camCtrl,
-              decoration: const InputDecoration(labelText: "Number of cameras"),
-              keyboardType: TextInputType.number,
-            ),
+            )
           ],
         ),
         actions: [
@@ -99,12 +92,9 @@ class _LoginPageState extends State<LoginPage> {
             onPressed: () async {
               final ok = await ApiService.signup(
                 username: signupUserCtrl.text.trim(),
-                password: signupPassCtrl.text,
-                numCams: int.tryParse(camCtrl.text) ?? 1,
+                password: signupPassCtrl.text
               );
-
               if (!mounted) return;
-
               if (ok) {
                 Navigator.pop(context);
                 Navigator.pushReplacement(
@@ -127,7 +117,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Đăng nhập")),
+      appBar: AppBar(title: const Text("Login")),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(

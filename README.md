@@ -1,6 +1,8 @@
-# child_mobile
+# Child in car monitor
 
-A new Flutter project.
+Front end of an application that uses machine learning to detect and notify children left in cars.
+
+[The Back end](https://github.com/dung368/PROJECT-SERVER)
 
 ## Getting Started
 

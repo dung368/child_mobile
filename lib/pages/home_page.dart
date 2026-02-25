@@ -162,7 +162,7 @@ class _HomePageState extends State<HomePage> {
             TextField(
               controller: urlCtrl,
               decoration: const InputDecoration(
-                labelText: "HLS URL (index.m3u8)",
+                labelText: "Camera URL",
               ),
             ),
           ],

@@ -4,15 +4,8 @@ Front end of an application that uses machine learning to detect and notify chil
 
 [The Back end](https://github.com/dung368/PROJECT-SERVER)
 
-## Getting Started
+## Features
+This application supports a few basic features: user register & login, HLS-stream camera add, camera remove.
+User can toggle specific camera(s) as "Driver camera". After the driver camera no longer detects human for a set amount of time (modifiable through home page), other cameras are then checked for detection of children, if detections exist, the app then sends a local notification to user device.
 
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+##

@@ -18,12 +18,20 @@ class _HomePageState extends State<HomePage> {
   bool loading = false;
   bool isFetching = false;
   Timer? timer;
+  int _driverTimeoutSec = 1800;
+  bool _savingTimeout = false;
 
   @override
   void initState() {
     super.initState();
     fetch();
     timer = Timer.periodic(const Duration(minutes: 30), (_) => fetch());
+    _loadDriverTimeout();
+  }
+  Future<void> _loadDriverTimeout() async{
+    final val = await ApiService.getDriverTimeout();
+    if (!mounted) return;
+    setState(() => _driverTimeoutSec = val);
   }
 
   Future<void> fetch() async {
@@ -59,6 +67,80 @@ class _HomePageState extends State<HomePage> {
       if (!mounted) return;
       setState(() => loading = false);
       isFetching = false;
+    }
+  }
+
+  Future<void> _showEditDriverTimeoutDialog() async {
+    final ctrl = TextEditingController(text: _driverTimeoutSec.toString());
+    final formKey = GlobalKey<FormState>();
+
+    final result = await showDialog<int?>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Driver timeout (seconds)"),
+        content: Form(
+          key: formKey,
+          child: TextFormField(
+            controller: ctrl,
+            keyboardType: TextInputType.number,
+            decoration: const InputDecoration(
+              labelText: "Seconds (e.g. 1800 = 30 minutes)",
+            ),
+            validator: (v) {
+              if (v == null || v.isEmpty) return "Enter a number";
+              final n = int.tryParse(v);
+              if (n == null || n < 1) return "Enter a positive integer";
+              if (n > 60 * 60 * 24) return "Too large";
+              return null;
+            },
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              ctrl.dispose();
+              Navigator.pop(context, null);
+            },
+            child: const Text("Cancel"),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              if (formKey.currentState?.validate() != true) return;
+              final newVal = int.parse(ctrl.text.trim());
+              ctrl.dispose();
+              Navigator.pop(context, newVal);
+            },
+            child: const Text("Save"),
+          ),
+        ],
+      ),
+    );
+
+    if (result != null) {
+      await _setDriverTimeout(result);
+    }
+  }
+
+  Future<void> _setDriverTimeout(int seconds) async {
+    setState(() => _savingTimeout = true);
+    try {
+      // Try server update (if endpoint exists) then persist locally
+      await ApiService.setDriverTimeout(seconds);
+      if (!mounted) return;
+      setState(() => _driverTimeoutSec = seconds);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Driver timeout set to $seconds seconds")),
+      );
+    } catch (e) {
+      // If server fails, ApiService still saves locally; show a friendly message
+      if (!mounted) return;
+      setState(() => _driverTimeoutSec = seconds);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Saved locally: $seconds seconds (server update failed: $e)")),
+      );
+    } finally {
+      if (!mounted) return;
+      setState(() => _savingTimeout = false);
     }
   }
 
@@ -116,18 +198,11 @@ class _HomePageState extends State<HomePage> {
               setState(() => loading = true);
               try {
                 final cam = await ApiService.createCamera(name: name, url: url);
-                if (cam != null) {
-                  await fetch(); // refresh list
-                  if (!mounted) return;
-                  ScaffoldMessenger.of(
-                    context,
-                  ).showSnackBar(const SnackBar(content: Text("Camera added")));
-                } else {
-                  if (!mounted) return;
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("Failed to add camera")),
-                  );
-                }
+                await fetch(); // refresh list
+                if (!mounted) return;
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(const SnackBar(content: Text("Camera added")));
               } catch (e) {
                 if (!mounted) return;
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -155,11 +230,6 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  // @override
-  // void dispose() {
-  //   timer?.cancel();
-  //   super.dispose();
-  // }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -195,6 +265,26 @@ class _HomePageState extends State<HomePage> {
                   ListTile(
                     title: const Text("Number of cameras"),
                     trailing: Text("$numCams"),
+                  ),
+                  const SizedBox(height: 12),
+                  // New setting tile: driver timeout
+                  ListTile(
+                    title: const Text("Driver timeout"),
+                    subtitle: Text("Seconds until driver missing check triggers"),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (_savingTimeout) const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2)),
+                        const SizedBox(width: 8),
+                        Text("$_driverTimeoutSec s"),
+                        const SizedBox(width: 8),
+                        IconButton(
+                          icon: const Icon(Icons.edit),
+                          tooltip: "Change driver timeout",
+                          onPressed: _showEditDriverTimeoutDialog,
+                        ),
+                      ],
+                    ),
                   ),
                   const SizedBox(height: 12),
                   SizedBox(

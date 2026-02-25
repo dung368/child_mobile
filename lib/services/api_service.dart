@@ -4,9 +4,10 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiService {
-  static const String baseUrl = "https://nh1sp758-8000.asse.devtunnels.ms";
+  static const String baseUrl = "http://192.168.1.52:8000";
   static const String _tokenKey = "api_token";
 
+  static const String _driverTimeoutKey = "driver_timeout_seconds";
   static String token = "";
 
   static Map<String, String> _authHeaders() {
@@ -174,5 +175,23 @@ class ApiService {
       );
     }
     return jsonDecode(res.body) as List<dynamic>;
+  }
+
+  static Future<int> getDriverTimeout() async{
+    final prefs = await SharedPreferences.getInstance();
+    final v = prefs.getInt(_driverTimeoutKey);
+    if (v != null && v > 0) return v;
+    return 1800;
+  }
+
+  static Future<void> setDriverTimeout(int seconds) async {
+    if (seconds < 1) throw Exception("seconds must be positive");
+    final res = await http.post(
+      Uri.parse("$baseUrl/settings/driver_timeout"),
+      headers: _authHeaders(),
+      body: jsonEncode({"driver_timeout_seconds": seconds}),
+    );
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(_driverTimeoutKey, seconds);
   }
 }

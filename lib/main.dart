@@ -1,7 +1,6 @@
 // lib/main.dart
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:workmanager/workmanager.dart';
 import 'services/notification_service.dart';
 import 'pages/login_page.dart';
 import 'services/api_service.dart';
@@ -13,22 +12,6 @@ import 'firebase_options.dart';
 @pragma('vm:entry-point')
 Future<void> firebaseBackgroundHandler(RemoteMessage message) =>
     NotificationService.firebaseMessagingBackgroundHandler(message);
-
-void callbackDispatcher() {
-  Workmanager().executeTask((task, inputData) async {
-    // Background task – call /current if token present.
-    try {
-      await ApiService.loadToken();
-      if (ApiService.token.isNotEmpty) {
-        try {
-          final current = await ApiService.getCurrent();
-          // optional: react to 'current' in background
-        } catch (_) {}
-      }
-    } catch (_) {}
-    return Future.value(true);
-  });
-}
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -44,9 +27,6 @@ void main() async {
 
   // Register top-level background message handler (must be top-level)
   FirebaseMessaging.onBackgroundMessage(firebaseBackgroundHandler);
-
-  // Register Workmanager (optional background periodic checks)
-  await Workmanager().initialize(callbackDispatcher);
 
   // Acquire FCM token and send it to server if logged in
   try {

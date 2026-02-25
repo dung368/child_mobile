@@ -28,7 +28,8 @@ class _HomePageState extends State<HomePage> {
     timer = Timer.periodic(const Duration(minutes: 30), (_) => fetch());
     _loadDriverTimeout();
   }
-  Future<void> _loadDriverTimeout() async{
+
+  Future<void> _loadDriverTimeout() async {
     final val = await ApiService.getDriverTimeout();
     if (!mounted) return;
     setState(() => _driverTimeoutSec = val);
@@ -98,7 +99,6 @@ class _HomePageState extends State<HomePage> {
         actions: [
           TextButton(
             onPressed: () {
-              ctrl.dispose();
               Navigator.pop(context, null);
             },
             child: const Text("Cancel"),
@@ -107,7 +107,6 @@ class _HomePageState extends State<HomePage> {
             onPressed: () async {
               if (formKey.currentState?.validate() != true) return;
               final newVal = int.parse(ctrl.text.trim());
-              ctrl.dispose();
               Navigator.pop(context, newVal);
             },
             child: const Text("Save"),
@@ -136,7 +135,11 @@ class _HomePageState extends State<HomePage> {
       if (!mounted) return;
       setState(() => _driverTimeoutSec = seconds);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Saved locally: $seconds seconds (server update failed: $e)")),
+        SnackBar(
+          content: Text(
+            "Saved locally: $seconds seconds (server update failed: $e)",
+          ),
+        ),
       );
     } finally {
       if (!mounted) return;
@@ -161,9 +164,7 @@ class _HomePageState extends State<HomePage> {
             ),
             TextField(
               controller: urlCtrl,
-              decoration: const InputDecoration(
-                labelText: "Camera URL",
-              ),
+              decoration: const InputDecoration(labelText: "Camera URL"),
             ),
           ],
         ),
@@ -270,11 +271,18 @@ class _HomePageState extends State<HomePage> {
                   // New setting tile: driver timeout
                   ListTile(
                     title: const Text("Driver timeout"),
-                    subtitle: Text("Seconds until driver missing check triggers"),
+                    subtitle: Text(
+                      "Seconds until driver missing check triggers",
+                    ),
                     trailing: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        if (_savingTimeout) const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2)),
+                        if (_savingTimeout)
+                          const SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          ),
                         const SizedBox(width: 8),
                         Text("$_driverTimeoutSec s"),
                         const SizedBox(width: 8),

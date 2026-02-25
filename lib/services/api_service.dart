@@ -1,10 +1,11 @@
 // lib/services/api_service.dart
 import 'dart:convert';
+import 'dart:ffi';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiService {
-  static const String baseUrl = "http://192.168.1.52:8000";
+  static const String baseUrl = "http://117.6.52.166:8000";
   static const String _tokenKey = "api_token";
 
   static const String _driverTimeoutKey = "driver_timeout_seconds";
@@ -41,12 +42,9 @@ class ApiService {
   // Signup
   static Future<bool> signup({
     required String username,
-    required String password
+    required String password,
   }) async {
-    final body = {
-      "username": username,
-      "password": password
-    };
+    final body = {"username": username, "password": password};
     final res = await http.post(
       Uri.parse('$baseUrl/signup'),
       headers: {'Content-Type': 'application/json'},
@@ -177,9 +175,13 @@ class ApiService {
     return jsonDecode(res.body) as List<dynamic>;
   }
 
-  static Future<int> getDriverTimeout() async{
-    final prefs = await SharedPreferences.getInstance();
-    final v = prefs.getInt(_driverTimeoutKey);
+  static Future<int> getDriverTimeout() async {
+    final res = await http.get(
+      Uri.parse("$baseUrl/settings/driver_timeout"),
+      headers: _authHeaders(),
+    );
+    final v = jsonDecode(res.body);
+    print(v);
     if (v != null && v > 0) return v;
     return 1800;
   }

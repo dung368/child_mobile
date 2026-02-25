@@ -8,4 +8,16 @@ Front end of an application that uses machine learning to detect and notify chil
 This application supports a few basic features: user register & login, HLS-stream camera add, camera remove.
 User can toggle specific camera(s) as "Driver camera". After the driver camera no longer detects human for a set amount of time (modifiable through home page), other cameras are then checked for detection of children, if detections exist, the app then sends a local notification to user device.
 
-##
+## Tech Stack
+
+| Component | Technology |
+|-----------|------------|
+| Backend API | FastAPI (Python 3.11+) |
+| Children Recognition | custom-trained YOLO26 nano |
+| Frontend | Flutter |
+| Database | JSON Database |
+
+## Quick start
+1. Run the server. [Read more](https://github.com/dung368/PROJECT-SERVER)
+2. Replace API service URL in ```lib/services/api_service.dart``` (line 7).
+3. Run the command ```flutter run``` from root directory.

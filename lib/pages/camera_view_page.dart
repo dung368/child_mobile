@@ -9,6 +9,7 @@ class CameraViewPage extends StatefulWidget {
   final String cameraId;
   final int camIndex;
   final String username;
+  final String password;
 
   const CameraViewPage({
     super.key,
@@ -17,6 +18,7 @@ class CameraViewPage extends StatefulWidget {
     required this.cameraId,
     required this.camIndex,
     required this.username,
+    required this.password
   });
 
   @override
@@ -30,7 +32,7 @@ class _CameraViewPageState extends State<CameraViewPage> {
   String get overlayUrl {
     // server overlay endpoint e.g. http://192.168.1.52:8000/overlay?username=nai&cam_index=0
     final base = ApiService.baseUrl;
-    return "$base/overlay?username=${Uri.encodeComponent(widget.username)}&cam_index=${widget.camIndex}&_=${_reload}";
+    return "$base/overlay?username=${Uri.encodeComponent(widget.username)}&password=${Uri.encodeComponent(widget.password)}&cam_index=${widget.camIndex}&_=$_reload";
   }
 
   @override

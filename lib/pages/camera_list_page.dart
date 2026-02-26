@@ -14,6 +14,7 @@ class _CameraListPageState extends State<CameraListPage> {
   bool _loading = true;
   String? _error;
   String _username = "";
+  String _password = "";
   final Set<String> _deleting = {}; // camera_id strings currently being deleted
 
   @override
@@ -32,6 +33,7 @@ class _CameraListPageState extends State<CameraListPage> {
       final data = await ApiService.getCurrent();
       final camsRaw = data['cameras'];
       _username = data['username'] ?? "";
+      _password = data['password'] ?? "";
       if (camsRaw is List) {
         _cameras = camsRaw.map<Map<String, dynamic>>((e) {
           if (e is Map) return Map<String, dynamic>.from(e as Map);
@@ -221,6 +223,7 @@ class _CameraListPageState extends State<CameraListPage> {
                               cameraId: cam['camera_id'],
                               camIndex: index,
                               username: _username,
+                              password: _password
                             );
                           },
                         ),

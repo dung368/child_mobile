@@ -5,7 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiService {
-  static const String baseUrl = "http://117.6.52.166:8000";
+  static const String baseUrl = "http://192.168.1.52:8000";
   static const String _tokenKey = "api_token";
 
   static const String _driverTimeoutKey = "driver_timeout_seconds";
@@ -90,6 +90,7 @@ class ApiService {
       headers: authHeaders(),
     );
     if (res.statusCode == 200) {
+      print(res.body);
       return jsonDecode(res.body) as Map<String, dynamic>;
     }
     throw Exception('Failed to fetch current user: ${res.statusCode}');

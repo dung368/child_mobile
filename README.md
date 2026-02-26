@@ -13,7 +13,7 @@ User can toggle specific camera(s) as "Driver camera". After the driver camera n
 | Component | Technology |
 |-----------|------------|
 | Backend API | FastAPI (Python 3.11+) |
-| Children Recognition | custom-trained YOLO26 nano |
+| Children Recognition | Custom-trained YOLO26 Nano |
 | Frontend | Flutter |
 | Database | JSON Database |
 

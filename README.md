@@ -2,7 +2,7 @@
 
 Front end of an application that uses machine learning to detect and notify children left in cars.
 
-[The Back end](https://github.com/dung368/PROJECT-SERVER)
+[The Back end](https://github.com/dung368/SEVER-PROD)
 
 ## Features
 This application supports a few basic features: user register & login, HLS-stream camera add, camera remove.

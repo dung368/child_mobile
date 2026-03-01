@@ -19,7 +19,7 @@ User can toggle specific camera(s) as "Driver camera". After the driver camera n
 
 ## Quick start
 Steps 1,2 are for those who want to test the server locally, we are already running the back end on the current URL.
-1. Run the server. [Read more](https://github.com/dung368/SEVER-PROD)
+1. Run the server. [Read more](https://github.com/dung368/PROJECT-SERVER)
 2. Replace API service URL in ```lib/services/api_service.dart``` (line 7).
 3. Run the command ```flutter run``` from root directory.
 
